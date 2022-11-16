@@ -47,7 +47,7 @@ const App = () => {
 
             {/* UI: Resolve Did */}
 
-            <div className="resolve-did">
+            {/* <div className="resolve-did">
               <div className="actions">
                 <div className="action">
                   <input
@@ -128,6 +128,33 @@ const App = () => {
                   </pre>
                 </div>
               </div>
+            </div> */}
+
+            <div className="resolve-did">
+              <div className="actions">
+                <div className="action">
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Enter your did"
+                  />
+                </div>
+
+                <div className="action">
+                  <button
+                    className="button button-action is-outline"
+                    style={{ width: "100%" }}
+                  >
+                    Sign
+                  </button>
+                </div>
+              </div>
+              <button
+                className="button button-action is-outline mt-4"
+                style={{ width: "100%" }}
+              >
+                Verify
+              </button>
             </div>
           </div>
         </div>
