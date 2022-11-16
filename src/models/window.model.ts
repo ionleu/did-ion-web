@@ -6,6 +6,8 @@ declare global {
         publicJwk: any;
         privateJwk: any;
       };
+      resolve: (didUri: string, options?: { nodeEndpoint: string }) => any;
+      AnchorRequest: any;
     };
   }
 }

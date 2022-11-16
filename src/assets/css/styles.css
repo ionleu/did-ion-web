@@ -32,6 +32,10 @@ pre, .highlight {
     cursor: pointer;
 }
 
+.center {
+    text-align: center;
+}
+
 .actions .action {
     width: 49%;
 }
