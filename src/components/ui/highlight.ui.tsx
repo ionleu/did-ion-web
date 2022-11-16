@@ -1,17 +1,13 @@
 import { toast } from "react-toastify";
 
-export const Highlight = ({
-  content,
-  onCopy,
-}: {
-  content: string;
-  onCopy: () => void;
-}) => {
+export const Highlight = ({ content }: { content: string }) => {
   return (
     <div className="highlight mt-4">
       <i
         className="fa fa-copy copy-icon"
         onClick={() => {
+          navigator.clipboard.writeText(content);
+
           toast("🦄 Copied!", {
             position: "top-right",
             autoClose: 3000,
@@ -22,7 +18,6 @@ export const Highlight = ({
             progress: undefined,
             theme: "dark",
           });
-          onCopy();
         }}
       ></i>
       <div
@@ -30,7 +25,7 @@ export const Highlight = ({
           overflowX: "auto",
         }}
       >
-        {content}
+        {!content.includes("@context") ? content : <pre>{content}</pre>}
       </div>
     </div>
   );

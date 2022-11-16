@@ -1,23 +1,47 @@
 import { useState } from "react";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 import { Button, RadioButton, Highlight, TextInput } from "./components/ui";
 import { ACTION_OPTIONS, ACTION_TYPES } from "./constants";
-import { createDid } from "./services";
+import { createDid, resolveDid } from "./services";
 
 const App = () => {
   const [didUri, setDidUri] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [highlightBody, setHighlightBody] = useState<string>("");
   const [currentAction, setCurrentAction] = useState<ACTION_TYPES>(
     ACTION_TYPES.CREATE
   );
 
   const onCreateDidUri = async () => {
-    const didUri = await createDid();
-    setDidUri(didUri);
+    setIsLoading(true);
+
+    const createdDidUri = await createDid();
+
+    setHighlightBody(createdDidUri);
+    setIsLoading(false);
   };
 
-  const onCopy = () => {
-    navigator.clipboard.writeText(didUri);
+  const onResolveDidUri = async (did: string) => {
+    setIsLoading(true);
+
+    try {
+      const resolvedDid = await resolveDid(did);
+      setHighlightBody(JSON.stringify(resolvedDid, null, 4));
+    } catch (e) {
+      toast.error("ION: This DID couldn't be resolved, try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -27,6 +51,7 @@ const App = () => {
           <RadioButton
             options={ACTION_OPTIONS}
             onClick={(action) => {
+              setHighlightBody("");
               setCurrentAction(action);
             }}
           />
@@ -46,7 +71,7 @@ const App = () => {
                   <TextInput
                     placeholder="Enter your did"
                     onChange={(value: string) => {
-                      console.log("event", value);
+                      setDidUri(value);
                     }}
                   />
                 </div>
@@ -56,7 +81,7 @@ const App = () => {
                     title="Resolve"
                     style={{ width: "100%" }}
                     onClick={() => {
-                      console.log("Resolve");
+                      onResolveDidUri(didUri);
                     }}
                   />
                 </div>
@@ -71,6 +96,7 @@ const App = () => {
                       placeholder="Enter a secret message here"
                       onChange={(value: string) => {
                         console.log("event sign", value);
+                        setDidUri(value);
                       }}
                     />
                   </div>
@@ -94,8 +120,11 @@ const App = () => {
                 />
               </>
             )}
+            {isLoading && <div className="mt-3 center">Is loading...</div>}
 
-            {!!didUri && <Highlight content={didUri} onCopy={onCopy} />}
+            {!!highlightBody && !isLoading && (
+              <Highlight content={highlightBody} />
+            )}
           </div>
         </div>
       </div>

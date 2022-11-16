@@ -23,5 +23,18 @@ export const createDid = async () => {
     },
   });
 
-  return await did.getURI("short");
+  await _publishDidToIon(did);
+
+  return await did.getURI();
+};
+
+export const resolveDid = async (didUri: string) => {
+  return await window.ION.resolve(didUri);
+};
+
+const _publishDidToIon = async (did: any) => {
+  const requestBody = await did.generateRequest();
+  const anchorRequest = new window.ION.AnchorRequest(requestBody);
+
+  await anchorRequest.submit();
 };
