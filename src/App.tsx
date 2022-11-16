@@ -3,11 +3,14 @@ import { toast, ToastContainer } from "react-toastify";
 
 import { Button, RadioButton, Highlight, TextInput } from "./components/ui";
 import { ACTION_OPTIONS, ACTION_TYPES } from "./constants";
-import { createDid, resolveDid } from "./services";
+import { createDid, resolveDid, signDid, verifyDid } from "./services";
 
 const App = () => {
   const [didUri, setDidUri] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [signIsValid, setSignIsValid] = useState(false);
+  const [secretWord, setSecretWord] = useState<string>("");
+  const [signature, setSignature] = useState<string>("");
   const [highlightBody, setHighlightBody] = useState<string>("");
   const [currentAction, setCurrentAction] = useState<ACTION_TYPES>(
     ACTION_TYPES.CREATE
@@ -23,6 +26,23 @@ const App = () => {
   };
 
   const onResolveDidUri = async (did: string) => {
+    setHighlightBody("");
+
+    if (!did.trim()) {
+      toast.error("ION: Please enter a DID token", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -42,6 +62,91 @@ const App = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onSignDid = async () => {
+    if (!secretWord) {
+      toast.error("ION: Please enter a secret message", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const didSignature = await signDid(secretWord);
+      setSignature(didSignature);
+
+      toast("ION: Signature was generated successfully.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } catch (e) {
+      toast.error("ION: Oops, somethig went wrong. Try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onVerifyDid = async () => {
+    if (!signature.trim()) {
+      toast.error("ION: Signature is not generated, plase sign again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      return;
+    }
+
+    setIsLoading(true);
+
+    const isValid = await verifyDid(signature);
+
+    if (isValid) {
+      setSignIsValid(true);
+    } else {
+      toast.error("ION: Signature is not valid.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -95,8 +200,9 @@ const App = () => {
                     <TextInput
                       placeholder="Enter a secret message here"
                       onChange={(value: string) => {
-                        console.log("event sign", value);
-                        setDidUri(value);
+                        setSecretWord(value);
+                        setSignIsValid(false);
+                        setSignature("");
                       }}
                     />
                   </div>
@@ -105,22 +211,26 @@ const App = () => {
                     <Button
                       title="Sign"
                       style={{ width: "100%" }}
-                      onClick={() => {
-                        console.log("Sign");
-                      }}
+                      onClick={onSignDid}
                     />
                   </div>
                 </div>
                 <Button
                   title="Verify"
                   style={{ width: "100%" }}
-                  onClick={() => {
-                    console.log("Verify");
-                  }}
+                  onClick={onVerifyDid}
                 />
               </>
             )}
             {isLoading && <div className="mt-3 center">Is loading...</div>}
+
+            {signIsValid && !isLoading && (
+              <div className="mt-3 center">
+                <strong style={{ color: "green" }}>
+                  Payload was verified successfully!
+                </strong>
+              </div>
+            )}
 
             {!!highlightBody && !isLoading && (
               <Highlight content={highlightBody} />
