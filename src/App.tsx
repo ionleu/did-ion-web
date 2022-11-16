@@ -27,7 +27,8 @@ const App = () => {
           </div>
 
           <div className="content mt-5">
-            <div className="create-did">
+            {/* UI: Create New Did */}
+            {/* <div className="create-did">
               <button className="button is-primary button-action">
                 Create New Did
               </button>
@@ -40,6 +41,91 @@ const App = () => {
                   }}
                 >
                   did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASAEiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA
+                </div>
+              </div>
+            </div> */}
+
+            {/* UI: Resolve Did */}
+
+            <div className="resolve-did">
+              <div className="actions">
+                <div className="action">
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Enter your did"
+                  />
+                </div>
+
+                <div className="action">
+                  <button
+                    className="button button-action is-outline"
+                    style={{ width: "100%" }}
+                  >
+                    Resolve
+                  </button>
+                </div>
+              </div>
+
+              <div className="highlight mt-4">
+                <i className="fa fa-copy copy-icon"></i>
+                <div
+                  style={{
+                    overflowX: "auto",
+                  }}
+                >
+                  <pre>
+                    {JSON.stringify(
+                      {
+                        "@context": "https://w3id.org/did-resolution/v1",
+                        didDocument: {
+                          id: "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA",
+                          "@context": [
+                            "https://www.w3.org/ns/did/v1",
+                            {
+                              "@base":
+                                "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA",
+                            },
+                          ],
+                          service: [
+                            {
+                              id: "#domain-1",
+                              type: "LinkedDomains",
+                              serviceEndpoint: "https://foo.example.com",
+                            },
+                          ],
+                          verificationMethod: [
+                            {
+                              id: "#key-1",
+                              controller: "",
+                              type: "EcdsaSecp256k1VerificationKey2019",
+                              publicKeyJwk: {
+                                crv: "secp256k1",
+                                kty: "EC",
+                                x: "IQoF6bqUDvBhGWUglcM7uq8BwqsEw3zAKMjPPIs_uW8",
+                                y: "szWeFJDgOVJ2vWm9u6tZoRugeAQQNQ6YR7ZbgiUfnio",
+                              },
+                            },
+                          ],
+                          authentication: ["#key-1"],
+                        },
+                        didDocumentMetadata: {
+                          method: {
+                            published: false,
+                            recoveryCommitment:
+                              "EiBPyOePlnmJ122lDhQJWJ0grIExBwjreUfOe36boqm-jg",
+                            updateCommitment:
+                              "EiCfGApgMBs653vH-JAxgqBNqkY_7XjAMInCR5o04bXRFw",
+                          },
+                          equivalentId: [
+                            "did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA",
+                          ],
+                        },
+                      },
+                      null,
+                      4
+                    )}
+                  </pre>
                 </div>
               </div>
             </div>

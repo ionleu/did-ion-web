@@ -7,6 +7,10 @@ body, .button {
     color: white;
 }
 
+pre, .highlight {
+    background-color: #141517;
+}
+
 .main {
     margin-top: 100px;
     border: 1px solid #76767621;
@@ -14,7 +18,6 @@ body, .button {
 }
 
 .highlight {
-    background-color: #141517;
     border-radius: 5px;
     padding: 15px;
     position: relative;
@@ -29,9 +32,25 @@ body, .button {
     cursor: pointer;
 }
 
-.button-action {
+.actions .action {
+    width: 49%;
+}
+
+.content .actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.input, .button-action {
     font-weight: 600;
     font-size: 14px;
+}
+
+.input {
+    background-color: #2d2e33;
+    border-color: #2d2e33;
+    color: white;
 }
 
 .button {
@@ -52,6 +71,11 @@ body, .button {
     background-color: #ae3fca;
 }
 
+.button.is-outline {
+    color: #ae3fca;
+    border: 1px solid #ae3fca;
+}
+
 .button.is-primary:hover {
     background-color: #872d9d;
 }
@@ -60,3 +84,8 @@ body, .button {
     padding: 1.2rem;
 }
 
+::placeholder {
+        
+    /* Firefox, Chrome, Opera */
+    color: #54504e !important;
+}
