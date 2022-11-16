@@ -8,6 +8,8 @@ declare global {
       };
       resolve: (didUri: string, options?: { nodeEndpoint: string }) => any;
       AnchorRequest: any;
+      signJws: (params: { payload: any; privateJwk: any }) => any;
+      verifyJws: (params: { jws: any; publicJwk: any }) => any;
     };
   }
 }
