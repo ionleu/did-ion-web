@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { emitNotification } from "../../services";
 
 export const Highlight = ({ content }: { content: string }) => {
   return (
@@ -7,17 +7,7 @@ export const Highlight = ({ content }: { content: string }) => {
         className="fa fa-copy copy-icon"
         onClick={() => {
           navigator.clipboard.writeText(content);
-
-          toast("🦄 Copied!", {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          });
+          emitNotification("success", "🦄 Copied!");
         }}
       ></i>
       <div

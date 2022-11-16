@@ -1,9 +1,15 @@
 import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 import { Button, RadioButton, Highlight, TextInput } from "./components/ui";
 import { ACTION_OPTIONS, ACTION_TYPES } from "./constants";
-import { createDid, resolveDid, signDid, verifyDid } from "./services";
+import {
+  createDid,
+  emitNotification,
+  resolveDid,
+  signDid,
+  verifyDid,
+} from "./services";
 
 const App = () => {
   const [didUri, setDidUri] = useState<string>("");
@@ -29,16 +35,7 @@ const App = () => {
     setHighlightBody("");
 
     if (!did.trim()) {
-      toast.error("ION: Please enter a DID token", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("error", "Please enter a DID token.");
 
       return;
     }
@@ -49,16 +46,10 @@ const App = () => {
       const resolvedDid = await resolveDid(did);
       setHighlightBody(JSON.stringify(resolvedDid, null, 4));
     } catch (e) {
-      toast.error("ION: This DID couldn't be resolved, try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification(
+        "error",
+        "This DID couldn't be resolved, try again later."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -66,16 +57,7 @@ const App = () => {
 
   const onSignDid = async () => {
     if (!secretWord) {
-      toast.error("ION: Please enter a secret message", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("error", "Please enter a secret message.");
 
       return;
     }
@@ -86,27 +68,9 @@ const App = () => {
       const didSignature = await signDid(secretWord);
       setSignature(didSignature);
 
-      toast("ION: Signature was generated successfully.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("success", "Signature was generated successfully.");
     } catch (e) {
-      toast.error("ION: Oops, somethig went wrong. Try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("error", "Oops, somethig went wrong. Try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -114,16 +78,10 @@ const App = () => {
 
   const onVerifyDid = async () => {
     if (!signature.trim()) {
-      toast.error("ION: Signature is not generated, plase sign again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification(
+        "error",
+        "Signature is not generated, plase sign again."
+      );
 
       return;
     }
@@ -135,16 +93,7 @@ const App = () => {
     if (isValid) {
       setSignIsValid(true);
     } else {
-      toast.error("ION: Signature is not valid.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("error", "Signature is not valid.");
     }
     setIsLoading(false);
   };
@@ -222,6 +171,7 @@ const App = () => {
                 />
               </>
             )}
+
             {isLoading && <div className="mt-3 center">Is loading...</div>}
 
             {signIsValid && !isLoading && (
