@@ -1,12 +1,24 @@
 import { useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 import { Button, RadioButton, Highlight, TextInput } from "./components/ui";
 import { ACTION_OPTIONS, ACTION_TYPES } from "./constants";
+import { createDid } from "./services";
 
 const App = () => {
+  const [didUri, setDidUri] = useState<string>("");
   const [currentAction, setCurrentAction] = useState<ACTION_TYPES>(
     ACTION_TYPES.CREATE
   );
+
+  const onCreateDidUri = async () => {
+    const didUri = await createDid();
+    setDidUri(didUri);
+  };
+
+  const onCopy = () => {
+    navigator.clipboard.writeText(didUri);
+  };
 
   return (
     <div className="container">
@@ -24,9 +36,7 @@ const App = () => {
               <Button
                 title="Create New Dids"
                 isPrimary={true}
-                onClick={() => {
-                  console.log("cee");
-                }}
+                onClick={onCreateDidUri}
               />
             )}
 
@@ -85,10 +95,12 @@ const App = () => {
               </>
             )}
 
-            <Highlight content="did:ion:EiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASAEiDqtYampb2uthrAz_7H5AsqlboL3okP3y4G8M40fY4ASA" />
+            {!!didUri && <Highlight content={didUri} onCopy={onCopy} />}
           </div>
         </div>
       </div>
+
+      <ToastContainer />
     </div>
   );
 };
