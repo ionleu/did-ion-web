@@ -1,0 +1,62 @@
+html {
+    background-color: #1a1b1e;
+  
+}
+
+body, .button {
+    color: white;
+}
+
+.main {
+    margin-top: 100px;
+    border: 1px solid #76767621;
+    border-radius: 5px;
+}
+
+.highlight {
+    background-color: #141517;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+    font-size: 14px;
+}
+
+.copy-icon {
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.button-action {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.button {
+    border-radius: 8px;
+    background-color: #25262b;
+    border: unset;
+}
+
+.buttons.has-addons {
+    justify-content: center;
+}
+
+.fas {
+    font-size: 13px;
+}
+
+.button.is-primary {
+    background-color: #ae3fca;
+}
+
+.button.is-primary:hover {
+    background-color: #872d9d;
+}
+
+.column {
+    padding: 1.2rem;
+}
+
