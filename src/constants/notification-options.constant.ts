@@ -10,3 +10,8 @@ export const TOAST_OPTIONS: ToastOptions = {
   progress: undefined,
   theme: "dark",
 };
+
+export const NOTIFICATION_TYPES = {
+  ERROR: "error",
+  SUCCESS: "success",
+};
