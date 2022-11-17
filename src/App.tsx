@@ -1,44 +1,49 @@
-import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { useReducer, useState } from "react";
+import { ToastContainer } from "react-toastify";
 
 import { Button, RadioButton, Highlight, TextInput } from "./components/ui";
 import { ACTION_OPTIONS, ACTION_TYPES } from "./constants";
-import { createDid, resolveDid, signDid, verifyDid } from "./services";
+import { ReducerActionType } from "./models";
+import {
+  appReducer,
+  createDid,
+  emitNotification,
+  resolveDid,
+  signDid,
+  verifyDid,
+} from "./services";
 
 const App = () => {
-  const [didUri, setDidUri] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [signIsValid, setSignIsValid] = useState(false);
-  const [secretWord, setSecretWord] = useState<string>("");
-  const [signature, setSignature] = useState<string>("");
-  const [highlightBody, setHighlightBody] = useState<string>("");
-  const [currentAction, setCurrentAction] = useState<ACTION_TYPES>(
-    ACTION_TYPES.CREATE
-  );
+  const [state, dispatch] = useReducer(appReducer, {
+    didUri: null,
+    signIsValid: false,
+    secretWord: null,
+    signature: null,
+    highlightBody: null,
+    currentAction: ACTION_TYPES.CREATE,
+  });
 
   const onCreateDidUri = async () => {
     setIsLoading(true);
 
     const createdDidUri = await createDid();
+    dispatch({
+      type: ReducerActionType.SET_HIGH_BODY,
+      payload: createdDidUri,
+    });
 
-    setHighlightBody(createdDidUri);
     setIsLoading(false);
   };
 
-  const onResolveDidUri = async (did: string) => {
-    setHighlightBody("");
+  const onResolveDidUri = async (did: string | null) => {
+    dispatch({
+      type: ReducerActionType.SET_HIGH_BODY,
+      payload: null,
+    });
 
-    if (!did.trim()) {
-      toast.error("ION: Please enter a DID token", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+    if (!did?.trim()) {
+      emitNotification("error", "Please enter a DID token.");
 
       return;
     }
@@ -47,35 +52,23 @@ const App = () => {
 
     try {
       const resolvedDid = await resolveDid(did);
-      setHighlightBody(JSON.stringify(resolvedDid, null, 4));
-    } catch (e) {
-      toast.error("ION: This DID couldn't be resolved, try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
+      dispatch({
+        type: ReducerActionType.SET_HIGH_BODY,
+        payload: JSON.stringify(resolvedDid, null, 4),
       });
+    } catch (e) {
+      emitNotification(
+        "error",
+        "This DID couldn't be resolved, try again later."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   const onSignDid = async () => {
-    if (!secretWord) {
-      toast.error("ION: Please enter a secret message", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+    if (!state.secretWord) {
+      emitNotification("error", "Please enter a secret message.");
 
       return;
     }
@@ -83,68 +76,41 @@ const App = () => {
     setIsLoading(true);
 
     try {
-      const didSignature = await signDid(secretWord);
-      setSignature(didSignature);
+      const didSignature = await signDid(state.secretWord);
+      dispatch({
+        type: ReducerActionType.SET_SIGNATURE,
+        payload: didSignature,
+      });
 
-      toast("ION: Signature was generated successfully.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("success", "Signature was generated successfully.");
     } catch (e) {
-      toast.error("ION: Oops, somethig went wrong. Try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+      emitNotification("error", "Oops, somethig went wrong. Try again later.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const onVerifyDid = async () => {
-    if (!signature.trim()) {
-      toast.error("ION: Signature is not generated, plase sign again.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-      });
+    if (!state.signature) {
+      emitNotification(
+        "error",
+        "Signature is not generated, plase sign again."
+      );
 
       return;
     }
 
     setIsLoading(true);
 
-    const isValid = await verifyDid(signature);
+    const isValid = await verifyDid(state.signature);
 
     if (isValid) {
-      setSignIsValid(true);
-    } else {
-      toast.error("ION: Signature is not valid.", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
+      dispatch({
+        type: ReducerActionType.SET_SIGN_IS_VALID,
+        payload: true,
       });
+    } else {
+      emitNotification("error", "Signature is not valid.");
     }
     setIsLoading(false);
   };
@@ -156,13 +122,18 @@ const App = () => {
           <RadioButton
             options={ACTION_OPTIONS}
             onClick={(action) => {
-              setHighlightBody("");
-              setCurrentAction(action);
+              dispatch({
+                type: ReducerActionType.DEFAULT,
+                payload: {
+                  highlightBody: null,
+                  currentAction: action,
+                },
+              });
             }}
           />
 
           <div className="content mt-5">
-            {currentAction === ACTION_TYPES.CREATE && (
+            {state.currentAction === ACTION_TYPES.CREATE && (
               <Button
                 title="Create New Dids"
                 isPrimary={true}
@@ -170,13 +141,16 @@ const App = () => {
               />
             )}
 
-            {currentAction === ACTION_TYPES.RESOLVE && (
+            {state.currentAction === ACTION_TYPES.RESOLVE && (
               <div className="actions">
                 <div className="action">
                   <TextInput
                     placeholder="Enter your did"
                     onChange={(value: string) => {
-                      setDidUri(value);
+                      dispatch({
+                        type: ReducerActionType.SET_DID_URI,
+                        payload: value,
+                      });
                     }}
                   />
                 </div>
@@ -186,23 +160,28 @@ const App = () => {
                     title="Resolve"
                     style={{ width: "100%" }}
                     onClick={() => {
-                      onResolveDidUri(didUri);
+                      onResolveDidUri(state.didUri);
                     }}
                   />
                 </div>
               </div>
             )}
 
-            {currentAction === ACTION_TYPES.SIGN && (
+            {state.currentAction === ACTION_TYPES.SIGN && (
               <>
                 <div className="actions mb-4">
                   <div className="action">
                     <TextInput
                       placeholder="Enter a secret message here"
                       onChange={(value: string) => {
-                        setSecretWord(value);
-                        setSignIsValid(false);
-                        setSignature("");
+                        dispatch({
+                          type: ReducerActionType.DEFAULT,
+                          payload: {
+                            signIsValid: false,
+                            secretWord: value,
+                            signature: null,
+                          },
+                        });
                       }}
                     />
                   </div>
@@ -222,9 +201,10 @@ const App = () => {
                 />
               </>
             )}
+
             {isLoading && <div className="mt-3 center">Is loading...</div>}
 
-            {signIsValid && !isLoading && (
+            {state.signIsValid && !isLoading && (
               <div className="mt-3 center">
                 <strong style={{ color: "green" }}>
                   Payload was verified successfully!
@@ -232,8 +212,8 @@ const App = () => {
               </div>
             )}
 
-            {!!highlightBody && !isLoading && (
-              <Highlight content={highlightBody} />
+            {!!state.highlightBody && !isLoading && (
+              <Highlight content={state.highlightBody} />
             )}
           </div>
         </div>

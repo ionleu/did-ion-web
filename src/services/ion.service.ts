@@ -3,7 +3,14 @@ import { v4 as uuidv4 } from "uuid";
 import { DID_PRIVATE_KEY, DID_PUBLIC_KEY } from "../constants";
 import { IEncryptType } from "../models";
 
-export const createDid = async () => {
+/**
+ * @name createDid
+ * @description
+ * Generate, Create and Submit the DID URI on ION Network
+ *
+ * @returns {string} Returns DID in string format
+ */
+export const createDid = async (): Promise<string> => {
   const authnKeys = await window.ION.generateKeyPair(IEncryptType.SECP256K1);
 
   sessionStorage.setItem(DID_PRIVATE_KEY, JSON.stringify(authnKeys.privateJwk));
@@ -34,10 +41,28 @@ export const createDid = async () => {
   return await did.getURI();
 };
 
+/**
+ * @name resolveDid
+ * @description
+ * Resolve a DID URI string on ION Network
+ *
+ * @param {string} didUri DID URI string
+ *
+ * @returns {object} Returns the associated DID resolution response object
+ */
 export const resolveDid = async (didUri: string) => {
   return await window.ION.resolve(didUri);
 };
 
+/**
+ * @name signDid
+ * @description
+ * Generates a signed JWS output of a provided payload
+ *
+ * @param {any} payload Any data that we whant to be signed
+ *
+ * @returns {string} Returns JWS token
+ */
 export const signDid = async (payload: any): Promise<string> => {
   const privateJwk = JSON.parse(sessionStorage.getItem(DID_PRIVATE_KEY)!);
 
@@ -47,6 +72,15 @@ export const signDid = async (payload: any): Promise<string> => {
   });
 };
 
+/**
+ * @name verifyDid
+ * @description
+ * Verifies a signed JWS output
+ *
+ * @param {string} jws JWS to be verified
+ *
+ * @returns {boolean} Returns valid state
+ */
 export const verifyDid = async (jws: any): Promise<boolean> => {
   const publicJwk = JSON.parse(sessionStorage.getItem(DID_PUBLIC_KEY)!);
 
@@ -56,6 +90,14 @@ export const verifyDid = async (jws: any): Promise<boolean> => {
   });
 };
 
+/**
+ * @private
+ * @name verifyDid
+ * @description
+ * Generates the request and submits it
+ *
+ * @param {any} did DID object
+ */
 const _publishDidToIon = async (did: any) => {
   const requestBody = await did.generateRequest();
   const anchorRequest = new window.ION.AnchorRequest(requestBody);
